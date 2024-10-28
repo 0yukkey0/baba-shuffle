@@ -1,33 +1,23 @@
-
-
-document.addEventListener("DOMContentLoaded", function () {
-    function spinDice() {
-        const rotations = [
-            { x: 0, y: 0 },         // front
-            { x: 180, y: 0 },       // back
-            { x: 90, y: 0 },        // top
-            { x: -90, y: 0 },       // bottom
-            { x: 0, y: 90 },        // right
-            { x: 0, y: -90 }        // left
-        ];
-        const randomIndex = Math.floor(Math.random() * rotations.length);
-        const finalRotation = rotations[randomIndex];
-
-        return JSON.stringify(finalRotation)
-    }
-
-
-
-
-
-    document.getElementById('shuffle-button').addEventListener('click', async function () {
-
-        var relay = RelayServer("achex", "baba-shuffle-web-app-test");
-        var channel = await relay.subscribe("babatest");
-    
-        channel.send(spinDice());
-
+document.addEventListener("DOMContentLoaded", async function () {
+    const urlParams = new URLSearchParams(window.location.search);
+    const sessionId = "baba-shuffle" + urlParams.get('room');
+    const relay = RelayServer("achex", sessionId);
+    const channel = await relay.subscribe(sessionId);
+    console.log(sessionId)
+    document.getElementById('shuffle-button').addEventListener('click', function () {
+        const rotation = getRotation();
+        channel.send(JSON.stringify(rotation));
     });
-
-
 });
+
+function getRotation() {
+    const rotations = [
+        {x: 0, y: 0},
+        {x: 180, y: 0},
+        {x: 90, y: 0},
+        {x: -90, y: 0},
+        {x: 0, y: 90},
+        {x: 0, y: -90}
+    ];
+    return rotations[Math.floor(Math.random() * rotations.length)];
+}

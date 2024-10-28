@@ -1,47 +1,59 @@
-document.addEventListener("DOMContentLoaded", async function () {
-    var relay = RelayServer("achex", "baba-shuffle-web-app-test");
-    var channel = await relay.subscribe("babatest");
-    channel.onmessage = getMessage;
+import {spinDice} from './dice.js';
 
-    function getMessage(event) {
-        console.log('onmessage', event)
-        if (event.data instanceof Blob) {
-            const reader = new FileReader();
-            reader.onload = function () {
-                try {
-                    const rotation = JSON.parse(reader.result);
-                    if (rotation.x !== undefined && rotation.y !== undefined) {
-                        spinDice(rotation);
-                    }
-                } catch (e) {
-                    console.error('Invalid JSON:', e);
-                }
-            };
-            reader.readAsText(event.data);
-        } else {
-            try {
-                const rotation = JSON.parse(event.data);
-                if (rotation.x !== undefined && rotation.y !== undefined) {
-                    spinDice(rotation);
-                }
-            } catch (e) {
-                // console.error('Invalid JSON:', e);
+document.addEventListener("DOMContentLoaded", async function () {
+    const urlParams = new URLSearchParams(window.location.search);
+    const sessionId = "baba-shuffle" + urlParams.get('room')
+    const playerCountSelect = document.getElementById("player-count");
+    const relay = RelayServer("achex", sessionId);
+    const channel = await relay.subscribe(sessionId);
+
+    // プレイヤー数に応じてサイコロ面の表示を変更
+    playerCountSelect.addEventListener("change", () => {
+        const playerCount = playerCountSelect.value;
+        updateDiceFaces(playerCount);
+    });
+    channel.onmessage = function (event) {
+        try {
+            const rotation = JSON.parse(event.data);
+            if (rotation.x !== undefined && rotation.y !== undefined) {
+                // warning.mp3の再生
+                const warningSound = new Audio('./warning.mp3'); // warning.mp3のパスを指定
+                warningSound.currentTime = 0;
+                warningSound.play();
+
+                warningSound.addEventListener('ended', () => {
+                    spinDice(rotation); // 共通関数でサイコロの回転
+                });
             }
+        } catch (e) {
+            console.error('Invalid JSON:', e);
+        }
+    };
+
+    function updateDiceFaces(playerCount) {
+        const dice = document.getElementById("dice");
+        dice.innerHTML = ""; // 古い面を削除
+        if (playerCount === "5") {
+            dice.innerHTML = `
+                <div class="face front">右1</div>
+                <div class="face back">左1</div>
+                <div class="face right">右2</div>
+                <div class="face left">左2</div>
+                <div class="face top">右3</div>
+                <div class="face bottom">☓</div>
+            `;
+        } else {
+            dice.innerHTML = `
+                <div class="face front">右1</div>
+                <div class="face back">左1</div>
+                <div class="face right">対面</div>
+                <div class="face left">☓</div>
+                <div class="face top">右1</div>
+                <div class="face bottom">左1</div>
+            `;
         }
     }
-})
 
-function spinDice(rotation) {
-    const dice = document.getElementById('dice');
-
-    // サイコロを複数回転させる
-    dice.style.transition = 'transform 4s ease-out'; // 回転スピードを4秒に
-    const x = Math.floor(Math.random() * 3600) + 1440; // 4回転以上させる
-    const y = Math.floor(Math.random() * 3600) + 1440; // 4回転以上させる
-    dice.style.transform = `rotateX(${x}deg) rotateY(${y}deg)`; // ランダムな回転を設定
-
-    setTimeout(() => {
-        dice.style.transition = 'none'; // アニメーションをリセット
-        dice.style.transform = `rotateX(${rotation.x}deg) rotateY(${rotation.y}deg)`; // ランダムな面を表示
-    }, 4000); // 4秒後に最終的な回転を設定
-}
+    // 初期化時のサイコロ面の表示
+    updateDiceFaces(playerCountSelect.value);
+});

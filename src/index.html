@@ -7,10 +7,21 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>baba shuffle</h1>
-    <div class="button-container">
-        <button onclick="window.location.href='roulette.html'">ルーレット</button>
-        <button onclick="window.location.href='shuffle.html'">シャッフル</button>
-    </div>
+<h1>baba shuffle</h1>
+<div class="button-container">
+    <input type="text" id="room-name" placeholder="対戦部屋を入力">
+    <button onclick="startGame('roulette.html')">ルーレット</button>
+    <button onclick="startGame('shuffle.html')">シャッフル</button>
+</div>
+<script>
+    function startGame(page) {
+        const roomName = document.getElementById('room-name').value;
+        if (roomName) {
+            window.location.href = `${page}?room=${encodeURIComponent(roomName)}`;
+        } else {
+            alert("対戦部屋を入力してください。");
+        }
+    }
+</script>
 </body>
 </html>

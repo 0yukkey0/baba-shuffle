@@ -6,20 +6,26 @@
     <title>ルーレット</title>
     <link rel="stylesheet" href="styles.css">
     <script type="module" src="https://chirimen.org/remote-connection/js/beta/RelayServerGlobal.js"></script>
-
 </head>
 <body>
-    <h1>ルーレット</h1>
-    <div class="roulette-container">
-        <div class="dice" id="dice">
-            <div class="face front">右1</div>
-            <div class="face back">左1</div>
-            <div class="face right">対面</div>
-            <div class="face left">ドクロ</div>
-            <div class="face top">右1</div>
-            <div class="face bottom">左1</div>
-        </div>
+<h1>ルーレット</h1>
+<label for="player-count">対戦人数:</label>
+<select id="player-count">
+    <option value="4">4人</option>
+    <option value="5">5人</option>
+</select>
+<div class="roulette-container">
+    <div class="dice" id="dice">
+        <div class="face front">右1</div>
+        <div class="face back">左1</div>
+        <div class="face right">対面</div>
+        <div class="face left">ドクロ</div>
+        <div class="face top">右1</div>
+        <div class="face bottom">左1</div>
     </div>
-    <script src="roulette.js"></script>
+</div>
+<script type="module" src="roulette.js"></script>
+<script type="module" src="dice.js"></script>
+<audio id="roll-sound" src="./roll-sound.mp3"></audio>
 </body>
 </html>
