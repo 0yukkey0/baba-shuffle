@@ -31,25 +31,25 @@ document.addEventListener("DOMContentLoaded", async function () {
     };
 
     function updateDiceFaces(playerCount) {
-        const dice = document.getElementById("dice");
+        const dice = document.getElementById("cube");
         dice.innerHTML = ""; // 古い面を削除
         if (playerCount === "5") {
             dice.innerHTML = `
-                <div class="face front">右1</div>
-                <div class="face back">左1</div>
-                <div class="face right">右2</div>
-                <div class="face left">左2</div>
-                <div class="face top">右3</div>
-                <div class="face bottom">☓</div>
+                <div class="face face-1 d-flex justify-content-center"><div class="text">右1</div></div>
+                <div class="face face-2 d-flex justify-content-center"><div class="text">左1</div></div>
+                <div class="face face-3 d-flex justify-content-center"><div class="text">右2</div></div>
+                <div class="face face-4 d-flex justify-content-center"><div class="text">左2</div></div>
+                <div class="face face-5 d-flex justify-content-center"><div class="text">右3</div></div>
+                <div class="face face-6 d-flex justify-content-center"><div class="text">✗</div></div>
             `;
         } else {
             dice.innerHTML = `
-                <div class="face front">右1</div>
-                <div class="face back">左1</div>
-                <div class="face right">対面</div>
-                <div class="face left">☓</div>
-                <div class="face top">右1</div>
-                <div class="face bottom">左1</div>
+                <div class="face face-1 d-flex justify-content-center"><div class="text">右1</div></div>
+                <div class="face face-2 d-flex justify-content-center"><div class="text">左1</div></div>
+                <div class="face face-3 d-flex justify-content-center"><div class="text">対面</div></div>
+                <div class="face face-4 d-flex justify-content-center"><div class="text">✗</div></div>
+                <div class="face face-5 d-flex justify-content-center"><div class="text">右1</div></div>
+                <div class="face face-6 d-flex justify-content-center"><div class="text">左1</div></div>
             `;
         }
     }
