@@ -1,17 +1,56 @@
 import {spinDice} from './dice.js';
 
 document.addEventListener("DOMContentLoaded", async function () {
+    const cube = document.getElementById("cube");
     const urlParams = new URLSearchParams(window.location.search);
     const sessionId = "baba-shuffle" + urlParams.get('room')
-    const playerCountSelect = document.getElementById("player-count");
     const relay = RelayServer("achex", sessionId);
     const channel = await relay.subscribe(sessionId);
+    const playerCountSelect = document.getElementById("player-count");
 
-    // プレイヤー数に応じてサイコロ面の表示を変更
+    // 各プレイヤー数に対応したサイコロの面の内容
+    const fourPlayerFaces = {
+        1: "右1",
+        2: "左1",
+        3: "対面",
+        4: "✗",
+        5: "右1",
+        6: "左1"
+    };
+
+    const fivePlayerFaces = {
+        1: "右1",
+        2: "左2",
+        3: "右2",
+        4: "左1",
+        5: "✗",
+        6: "右3"
+    };
+
+    // 現在の面の値を保持
+    let currentFaces = {...fourPlayerFaces}; // 初期状態は4人用
+
+    // サイコロの面の内容を更新
+    const updateFaces = (faces) => {
+        document.querySelector(".face-1 .text").innerText = faces[1];
+        document.querySelector(".face-2 .text").innerText = faces[2];
+        document.querySelector(".face-3 .text").innerText = faces[3];
+        document.querySelector(".face-4 .text").innerText = faces[4];
+        document.querySelector(".face-5 .text").innerText = faces[5];
+        document.querySelector(".face-6 .text").innerText = faces[6];
+        currentFaces = faces; // 現在の面の値を更新
+    }
+
+    // 人数選択イベントを設定
     playerCountSelect.addEventListener("change", () => {
         const playerCount = playerCountSelect.value;
-        updateDiceFaces(playerCount);
+        if (playerCount === "4") {
+            updateFaces(fourPlayerFaces);
+        } else if (playerCount === "5") {
+            updateFaces(fivePlayerFaces);
+        }
     });
+
     channel.onmessage = function (event) {
         try {
             const rotation = JSON.parse(event.data);
@@ -22,38 +61,11 @@ document.addEventListener("DOMContentLoaded", async function () {
                 warningSound.play();
 
                 warningSound.addEventListener('ended', () => {
-                    spinDice(rotation); // 共通関数でサイコロの回転
+                    spinDice(rotation, currentFaces); // 共通関数でサイコロの回転
                 });
             }
         } catch (e) {
             console.error('Invalid JSON:', e);
         }
     };
-
-    function updateDiceFaces(playerCount) {
-        const dice = document.getElementById("cube");
-        dice.innerHTML = ""; // 古い面を削除
-        if (playerCount === "5") {
-            dice.innerHTML = `
-                <div class="face face-1 d-flex justify-content-center"><div class="text">右1</div></div>
-                <div class="face face-2 d-flex justify-content-center"><div class="text">左1</div></div>
-                <div class="face face-3 d-flex justify-content-center"><div class="text">右2</div></div>
-                <div class="face face-4 d-flex justify-content-center"><div class="text">左2</div></div>
-                <div class="face face-5 d-flex justify-content-center"><div class="text">右3</div></div>
-                <div class="face face-6 d-flex justify-content-center"><div class="text">✗</div></div>
-            `;
-        } else {
-            dice.innerHTML = `
-                <div class="face face-1 d-flex justify-content-center"><div class="text">右1</div></div>
-                <div class="face face-2 d-flex justify-content-center"><div class="text">左1</div></div>
-                <div class="face face-3 d-flex justify-content-center"><div class="text">対面</div></div>
-                <div class="face face-4 d-flex justify-content-center"><div class="text">✗</div></div>
-                <div class="face face-5 d-flex justify-content-center"><div class="text">右1</div></div>
-                <div class="face face-6 d-flex justify-content-center"><div class="text">左1</div></div>
-            `;
-        }
-    }
-
-    // 初期化時のサイコロ面の表示
-    updateDiceFaces(playerCountSelect.value);
 });
